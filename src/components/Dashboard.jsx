@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { Row, Col, Card, Statistic, Button, message } from "antd";
-import { DollarOutlined, StockOutlined, PlusOutlined } from "@ant-design/icons";
-import { stockService } from "../services/stockService";
+import { Card, Statistic, Button, Spin, Alert } from "antd";
+import {
+  PlusOutlined,
+  ReloadOutlined,
+} from "@ant-design/icons";
 import StockForm from "./StockForm";
 import StockList from "./StockList";
+import { stockService } from "../services/stockService";
 
 const Dashboard = () => {
   const [stocks, setStocks] = useState([]);
@@ -12,26 +15,21 @@ const Dashboard = () => {
     stockCount: 0,
     topPerformingStock: "",
   });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [isFormVisible, setIsFormVisible] = useState(false);
 
   const fetchStocks = async () => {
     try {
+      setLoading(true);
       const { stocks, metrics } = await stockService.getAllStocks();
       setStocks(stocks);
       setMetrics(metrics);
+      setError(null);
     } catch (error) {
-      console.error("Error fetching stocks", error);
-    }
-  };
-
-  const initializePortfolio = async () => {
-    try {
-      await stockService.initializePortfolio();
-      await fetchStocks();
-      message.success("Portfolio Resetted Successfully!");
-    } catch (error) {
-      console.error("Error initializing portfolio", error);
-      message.error("Failed to reset portfolio");
+      setError(error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -40,63 +38,90 @@ const Dashboard = () => {
   }, []);
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
-      <Row gutter={16} className="mb-6">
-        <Col span={8}>
-          <Card>
-            <Statistic
-              title="Total Portfolio Value"
-              value={metrics.totalValue}
-              precision={2}
-              valueStyle={{ color: "#3f8600" }}
-              prefix={<DollarOutlined />}
-            />
-          </Card>
-        </Col>
-        <Col span={8}>
-          <Card>
-            <Statistic
-              title="Number of Stocks"
-              value={metrics.stockCount}
-              valueStyle={{ color: "#cf1322" }}
-              prefix={<StockOutlined />}
-            />
-          </Card>
-        </Col>
-        <Col span={8}>
-          <Card>
-            <Statistic
-              title="Top Performing Stock"
-              value={metrics.topPerformingStock}
-              valueStyle={{ color: "#1890ff" }}
-            />
-          </Card>
-        </Col>
-      </Row>
+    <div className="container mx-auto px-4 py-6 space-y-6">
+      {error && (
+        <Alert
+          message="Error"
+          description={error}
+          type="error"
+          closable
+          className="mb-4"
+        />
+      )}
 
-      <div className="flex justify-between items-center mb-6">
-        <Button
-          type="primary"
-          icon={<PlusOutlined />}
-          onClick={() => setIsFormVisible(true)}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card
+          className="shadow-card hover:scale-105 transition-transform duration-300"
+          bordered={false}
         >
-          Add Stock
-        </Button>
-        <Button type="dashed" onClick={initializePortfolio}>
-          Reset Portfolio
-        </Button>
+          <Statistic
+            title="Total Portfolio Value"
+            value={metrics.totalValue}
+            prefix="$"
+            valueStyle={{ color: "#3f8600" }}
+          />
+        </Card>
+
+        <Card
+          className="shadow-card hover:scale-105 transition-transform duration-300"
+          bordered={false}
+        >
+          <Statistic
+            title="Number of Stocks"
+            value={metrics.stockCount}
+            valueStyle={{ color: "#cf1322" }}
+          />
+        </Card>
+
+        <Card
+          className="shadow-card hover:scale-105 transition-transform duration-300"
+          bordered={false}
+        >
+          <Statistic
+            title="Top Performing Stock"
+            value={metrics.topPerformingStock}
+            valueStyle={{ color: "#1890ff" }}
+          />
+        </Card>
       </div>
+
+      <div className="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
+        <div className="flex gap-4">
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={() => setIsFormVisible(true)}
+            className="w-full sm:w-auto"
+          >
+            Add Stock
+          </Button>
+          <Button
+            icon={<ReloadOutlined />}
+            onClick={fetchStocks}
+            className="w-full sm:w-auto"
+            loading={loading}
+          >
+            Refresh
+          </Button>
+        </div>
+      </div>
+
+      {loading ? (
+        <div className="flex justify-center items-center h-64">
+          <Spin size="large" />
+        </div>
+      ) : (
+        <StockList
+          stocks={stocks}
+          onStockUpdated={fetchStocks}
+          onStockDeleted={fetchStocks}
+        />
+      )}
 
       <StockForm
         visible={isFormVisible}
         onClose={() => setIsFormVisible(false)}
         onStockAdded={fetchStocks}
-      />
-
-      <StockList
-        stocks={stocks}
-        onStockUpdated={fetchStocks}
-        onStockDeleted={fetchStocks}
       />
     </div>
   );
