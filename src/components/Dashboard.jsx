@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Row, Col, Card, Statistic, Button } from "antd";
+import { Row, Col, Card, Statistic, Button, message } from "antd";
 import { DollarOutlined, StockOutlined, PlusOutlined } from "@ant-design/icons";
 import { stockService } from "../services/stockService";
 import StockForm from "./StockForm";
@@ -28,8 +28,10 @@ const Dashboard = () => {
     try {
       await stockService.initializePortfolio();
       await fetchStocks();
+      message.success("Portfolio Resetted Successfully!");
     } catch (error) {
       console.error("Error initializing portfolio", error);
+      message.error("Failed to reset portfolio");
     }
   };
 
