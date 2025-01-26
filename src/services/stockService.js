@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:5000/api/stocks";
+const API_URL = "https://portfolio-be-lvyv.onrender.com/api/stocks";
 
 export const stockService = {
   initializePortfolio: async () => {
