@@ -34,7 +34,7 @@ const StockList = ({ stocks, onStockUpdated, onStockDeleted }) => {
       dataIndex: "symbol",
       key: "symbol",
       fixed: "left",
-      width: isSmallScreen ? 20 : 100,
+      width: isSmallScreen ? 30 : 100,
       render: (symbol, record) => {
         const currentPrice = record.currentPrice;
         const purchasePrice = parseFloat(record.purchasePrice);
@@ -52,6 +52,12 @@ const StockList = ({ stocks, onStockUpdated, onStockDeleted }) => {
           </Tag>
         );
       },
+    },
+    {
+      title: "Name",
+      dataIndex: "name",
+      key: "name",
+      width: isSmallScreen ? 50 : 150,
     },
     {
       title: "Quantity",
@@ -78,13 +84,13 @@ const StockList = ({ stocks, onStockUpdated, onStockDeleted }) => {
       key: "totalValue",
       render: (_, record) =>
         `$${(record.currentPrice * record.quantity).toFixed(2)}`,
-      width: isSmallScreen ? 30 : 150,
+      width: isSmallScreen ? 40 : 150,
     },
     {
       title: "Actions",
       key: "actions",
       fixed: "right",
-      width: isSmallScreen ? 20 : 100,
+      width: isSmallScreen ? 30 : 100,
       render: (_, record) => (
         <Space>
           <Button
