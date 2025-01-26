@@ -130,7 +130,6 @@ const StockList = ({ stocks, onStockUpdated, onStockDeleted }) => {
           onStockAdded={async (updatedStock) => {
             try {
               await stockService.updateStock(editingStock.id, updatedStock);
-              message.success("Stock updated");
               onStockUpdated();
               setIsEditModalVisible(false);
             } catch (error) {
