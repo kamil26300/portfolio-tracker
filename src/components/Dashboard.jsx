@@ -33,6 +33,17 @@ const Dashboard = () => {
     }
   };
 
+  const initializePortfolio = async () => {
+    try {
+      await stockService.initializePortfolio();
+      await fetchStocks();
+      message.success("Portfolio Resetted Successfully!");
+    } catch (error) {
+      setError(error.message);
+      message.error("Error initializing portfolio", error);
+    }
+  };
+
   useEffect(() => {
     fetchStocks();
   }, []);
@@ -97,11 +108,12 @@ const Dashboard = () => {
           </Button>
           <Button
             icon={<ReloadOutlined />}
-            onClick={fetchStocks}
+            onClick={initializePortfolio}
+            type="dashed"
             className="w-full sm:w-auto"
             loading={loading}
           >
-            Refresh
+            Reset Portfolio
           </Button>
         </div>
       </div>
